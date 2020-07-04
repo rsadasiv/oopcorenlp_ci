@@ -49,6 +49,11 @@ git clone https://github.com/rsadasiv/oopcorenlp.git
 cd oopcorenlp
 mvn install
 
+#download oopcorenlp_web
+cd
+git clone https://github.com/rsadasiv/oopcorenlp_web.git
+
+
 #build oopcorenlp_cli
 cd
 git clone https://github.com/rsadasiv/oopcorenlp_cli.git
@@ -57,4 +62,17 @@ mvn package
 
 #run cli
 cd
-java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --help
+java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action generate
+java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action analyze --outputPath oopcorenlp_web/WebContent/Corpora/Sample
+
+#build oopcorenlp_web
+cd oopcorenlp_web
+mvn install
+
+#start tomcat
+cd
+apache-tomcat-$TOMCAT_VERSION/bin/startup.sh
+
+#deploy oopcorenlp_web
+cd oopcorenlp_web
+mvn tomcat7:deploy

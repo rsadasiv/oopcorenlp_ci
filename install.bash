@@ -6,6 +6,7 @@ sudo yum install tar -y
 
 MAVEN_VERSION=3.6.3
 TOMCAT_VERSION=9.0.36
+CLI_VERSION=1.0
 
 #install maven from download
 cd
@@ -56,4 +57,4 @@ mvn package
 
 #run cli
 cd
-java -Xms8096m -Xmx10120m -jar target/oopcorenlp_cli.jar --help
+java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --help

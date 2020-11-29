@@ -94,6 +94,8 @@ git clone https://github.com/rsadasiv/oopcorenlp_corpus.git
 cd oopcorenlp_corpus
 mvn install
 
+
+#oopcorenlp.properties must exist in ./Sample/
 #run cli
 cd $OOP_HOME
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action generate --outputPath ./Sample

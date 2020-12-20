@@ -7,7 +7,7 @@ MAVEN_SUREFIRE_OPTS="-Xmx12g"
 
 set -e
 
-#install wordnet, verbnet from download
+echo "install wordnet, verbnet from download"
 cd $OOP_HOME
 if [ ! -d data ]
 then
@@ -28,7 +28,7 @@ then
 fi
 
 
-#build jverbnet from bugfix branch
+echo "build jverbnet from bugfix branch"
 cd $OOP_HOME
 if [ ! -d jverbnet ]
 then
@@ -39,7 +39,7 @@ git pull
 mvn install
 
 
-#build oopcorenlp_parent
+echo "build oopcorenlp_parent"
 cd $OOP_HOME
 if [ ! -d oopcorenlp_parent ]
 then
@@ -49,7 +49,7 @@ cd oopcorenlp_parent
 git pull
 mvn clean install site
 
-#build oopcorenlp
+echo "build oopcorenlp"
 cd $OOP_HOME
 if [ ! -d oopcorenlp ]
 then
@@ -62,7 +62,7 @@ export MAVEN_OPTS=$MAVEN_SUREFIRE_OPTS
 mvn clean install site
 export MAVEN_OPTS=$MAVEN_OPTS_OLD 
 
-#build oopcorenlp_cli
+echo "build oopcorenlp_cli"
 cd $OOP_HOME
 if [ ! -d oopcorenlp_cli ]
 then
@@ -73,7 +73,7 @@ git pull
 mvn clean install site
 
 
-#build oopcorenlp_corpus
+echo "build oopcorenlp_corpus"
 cd $OOP_HOME
 if [ ! -d oopcorenlp_corpus ]
 then
@@ -86,7 +86,7 @@ export MAVEN_OPTS=$MAVEN_SUREFIRE_OPTS
 mvn clean install site
 export MAVEN_OPTS=$MAVEN_OPTS_OLD 
 
-#build oopcorenlp_corpus_cli
+echo "build oopcorenlp_corpus_cli"
 cd $OOP_HOME
 if [ ! -d oopcorenlp_corpus_cli ]
 then
@@ -97,7 +97,7 @@ git pull
 mvn clean install site
 
 
-#build oopcorenlp_web
+echo "build oopcorenlp_web"
 cd $OOP_HOME
 if [ ! -d oopcorenlp_web ]
 then
@@ -106,9 +106,11 @@ fi
 cd oopcorenlp_web
 git pull
 
-#deploy oopcorenlp_corpus sample output to tomcat
-if [ ! -d WebContent/Corpora/Sample ]
+echo "deploy oopcorenlp_corpus sample output to tomcat"
+if [ -d WebContent/Corpora/Sample ]
 then
+	rm -Rf WebContent/Corpora/*
+else
 	mkdir WebContent/Corpora/Sample
 fi
 cp -R $OOP_HOME/Corpora_IT/Sample/Sample/* WebContent/Corpora/Sample/

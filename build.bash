@@ -3,6 +3,7 @@ MAVEN_VERSION=3.6.3
 TOMCAT_VERSION=9.0.36
 CLI_VERSION=1.0
 OOP_HOME=$PWD/..
+MAVEN_SUREFIRE_OPTS="-Xmx12g"
 
 set -e
 
@@ -35,7 +36,7 @@ then
 fi	
 cd jverbnet
 git pull
-mvn install
+#mvn install
 
 
 #build oopcorenlp_parent
@@ -46,7 +47,7 @@ then
 fi
 cd oopcorenlp_parent
 git pull
-mvn clean install site
+#mvn clean install site
 
 #build oopcorenlp
 cd $OOP_HOME
@@ -56,7 +57,21 @@ then
 fi
 cd oopcorenlp
 git pull
+MAVEN_OPTS_OLD=$MVN_OPTS
+export MAVEN_OPTS=$MAVEN_SUREFIRE_OPTS
+#mvn clean install site
+export MAVEN_OPTS=$MAVEN_OPTS_OLD 
+
+#build oopcorenlp_cli
+cd $OOP_HOME
+if [ ! -d oopcorenlp_cli ]
+then
+	git clone https://github.com/rsadasiv/oopcorenlp_cli.git
+fi
+cd oopcorenlp_cli
+git pull
 mvn clean install site
+
 
 #build oopcorenlp_corpus
 cd $OOP_HOME
@@ -66,39 +81,21 @@ then
 fi
 cd oopcorenlp_corpus
 git pull
-mvn clean install site
+MAVEN_OPTS_OLD=$MVN_OPTS
+export MAVEN_OPTS=$MAVEN_SUREFIRE_OPTS
+#mvn clean install site
+export MAVEN_OPTS=$MAVEN_OPTS_OLD 
 
 #build oopcorenlp_corpus_cli
 cd $OOP_HOME
-git clone https://github.com/rsadasiv/oopcorenlp_corpus_cli.git
-cd oopcorenlp_corpus_cli
-mvn install site
-
-
-#oopcorenlp.properties must exist in ./Sample/
-#run cli
-cd $OOP_HOME
-if [ ! -d Sample ]
+if [ ! -d oopcorenlp_corpus_cli ]
 then
-	mkdir Sample
-	cd Sample
-	mkdir Chekhov
-	mkdir Maupassant
-	mkdir Wodehouse
-	mkdir OHenry
-else
-	rm -Rf ./Sample/Chekhov/*
-	rm -Rf ./Sample/Maupassant/*
-	rm -Rf ./Sample/Wodehouse/*
-	rm -Rf ./Sample/OHenry/*
+	git clone https://github.com/rsadasiv/oopcorenlp_corpus_cli.git
 fi
+cd oopcorenlp_corpus_cli
+git pull
+#mvn clean install site
 
-cd $OOP_HOME
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action generate --outputPath ./Sample
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/ChekhovBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/MaupassantBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/WodehouseBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/OHenryBatch.json
 
 #build oopcorenlp_web
 cd $OOP_HOME
@@ -109,29 +106,11 @@ fi
 cd oopcorenlp_web
 git pull
 
-#deploy Analyze output to tomcat
-mkdir oopcorenlp_web/WebContent/Corpora/Chekhov
-cp ./Sample/Corpora/Gutenberg/Chekhov/Analyze/* oopcorenlp_web/WebContent/Corpora/Chekhov/
-mkdir oopcorenlp_web/WebContent/Corpora/Maupassant
-cp ./Sample/Corpora/Gutenberg/Maupassant/Analyze/* oopcorenlp_web/WebContent/Corpora/Maupassant/
-mkdir oopcorenlp_web/WebContent/Corpora/Wodehouse
-cp ./Sample/Corpora/EBook/Wodehouse/Analyze/* oopcorenlp_web/WebContent/Corpora/Wodehouse/
-mkdir oopcorenlp_web/WebContent/Corpora/OHenry
-cp ./Sample/Corpora/Wikisource/OHenry/Analyze/* oopcorenlp_web/WebContent/Corpora/OHenry/
-
-#build oopcorenlp
-cd $OOP_HOME
-cd oopcorenlp_web
-mvn clean install site
-
-#corpus cleanup
-#rm -Rf oopcorenlp_web/WebContent/Corpora/*
-
-#publish docs
-cd $OOP_HOME
-if [ ! -d rsadasiv.github.io ]
+#deploy oopcorenlp_corpus sample output to tomcat
+if [ ! -d WebContent/Corpora/Sample ]
 then
-	git clone https://github.com/rsadasiv/rsadasiv.github.io.git
+	mkdir WebContent/Corpora/Sample
 fi
-cd rsadasiv.github.io
-git pull
+cp -R $OOP_HOME/Corpora_IT/Sample/Sample/* WebContent/Corpora/Sample/
+mvn clean install site
+rm -Rf WebContent/Corpora/Sample

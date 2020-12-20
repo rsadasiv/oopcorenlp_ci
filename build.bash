@@ -36,7 +36,7 @@ then
 fi	
 cd jverbnet
 git pull
-#mvn install
+mvn install
 
 
 #build oopcorenlp_parent
@@ -47,7 +47,7 @@ then
 fi
 cd oopcorenlp_parent
 git pull
-#mvn clean install site
+mvn clean install site
 
 #build oopcorenlp
 cd $OOP_HOME
@@ -59,7 +59,7 @@ cd oopcorenlp
 git pull
 MAVEN_OPTS_OLD=$MVN_OPTS
 export MAVEN_OPTS=$MAVEN_SUREFIRE_OPTS
-#mvn clean install site
+mvn clean install site
 export MAVEN_OPTS=$MAVEN_OPTS_OLD 
 
 #build oopcorenlp_cli
@@ -83,7 +83,7 @@ cd oopcorenlp_corpus
 git pull
 MAVEN_OPTS_OLD=$MVN_OPTS
 export MAVEN_OPTS=$MAVEN_SUREFIRE_OPTS
-#mvn clean install site
+mvn clean install site
 export MAVEN_OPTS=$MAVEN_OPTS_OLD 
 
 #build oopcorenlp_corpus_cli
@@ -94,7 +94,7 @@ then
 fi
 cd oopcorenlp_corpus_cli
 git pull
-#mvn clean install site
+mvn clean install site
 
 
 #build oopcorenlp_web

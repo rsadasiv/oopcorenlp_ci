@@ -30,29 +30,15 @@ tar xvfz apache-tomcat-$TOMCAT_VERSION.tar.gz
 cd $OOP_HOME
 cp tomcat-users.xml apache-tomcat-$TOMCAT_VERSION/conf/tomcat-users.xml
 
+./build.bash
 
 #run cli
 cd $OOP_HOME
 java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action generate
-java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action analyze --outputPath oopcorenlp_web/WebContent/Corpora/Sample
+java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action analyze --outputPath ./AnalyzeIT
 
-#build oopcorenlp_web
-cd oopcorenlp_web
-mvn install
 
-#start tomcat
-cd $OOP_HOME
-apache-tomcat-$TOMCAT_VERSION/bin/startup.sh
-
-#deploy oopcorenlp_web
-cd oopcorenlp_web
-mvn tomcat7:deploy
-
-#stop tomcat
-cd $OOP_HOME
-apache-tomcat-$TOMCAT_VERSION/bin/shutdown.sh
-
-#run cli
+#run corpus cli
 cd $OOP_HOME
 if [ ! -d Sample ]
 then
@@ -93,3 +79,14 @@ cd $OOP_HOME
 cd oopcorenlp_web
 mvn -DSkipITs package
 
+#start tomcat
+cd $OOP_HOME
+apache-tomcat-$TOMCAT_VERSION/bin/startup.sh
+
+#deploy oopcorenlp_web
+cd oopcorenlp_web
+mvn tomcat7:deploy
+
+#stop tomcat
+cd $OOP_HOME
+apache-tomcat-$TOMCAT_VERSION/bin/shutdown.sh

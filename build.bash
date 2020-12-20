@@ -4,6 +4,8 @@ TOMCAT_VERSION=9.0.36
 CLI_VERSION=1.0
 OOP_HOME=$PWD/..
 MAVEN_SUREFIRE_OPTS="-Xmx12g"
+export JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64
+PATH=$PATH:~/apache-maven-$MAVEN_VERSION/bin
 
 set -e
 
@@ -107,6 +109,10 @@ cd oopcorenlp_web
 git pull
 
 echo "deploy oopcorenlp_corpus sample output to tomcat"
+if [ ! -d WebContent/Corpora ]
+then
+	mkdir WebContent/Corpora
+fi
 if [ -d WebContent/Corpora/Sample ]
 then
 	rm -Rf WebContent/Corpora/*

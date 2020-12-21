@@ -11,7 +11,7 @@ TOMCAT_VERSION=9.0.41
 CLI_VERSION=1.0
 OOP_HOME=$PWD/..
 set -e
-
+set -x
 #install maven from download
 cd $OOP_HOME
 if [ ! -d apache-maven-$MAVEN_VERSION ] 
@@ -45,8 +45,8 @@ cd $OOP_HOME/oopcorenlp_ci
 
 #run cli
 cd $OOP_HOME
-java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action generate
-java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action analyze --outputPath ./AnalyzeIT
+#java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action generate
+#java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action analyze --outputPath ./AnalyzeIT
 
 
 #run corpus cli
@@ -68,22 +68,30 @@ fi
 
 cd $OOP_HOME
 #java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action generate --outputPath ./Sample
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/ChekhovBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/MaupassantBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/WodehouseBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/OHenryBatch.json
+#java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/ChekhovBatch.json
+#java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/MaupassantBatch.json
+#java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/WodehouseBatch.json
+#java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/OHenryBatch.json
 
 #deploy Analyze output to tomcat
 cd $OOP_HOME
 cd oopcorenlp_web
+
+if [ ! -d WebContent/Corpora ]
+then
+        mkdir WebContent/Corpora
+else
+        rm -Rf WebContent/Corpora/*
+fi
+
 mkdir WebContent/Corpora/Chekhov
-cp -R $OOP_HOME/Corpora_IT/Gutenberg/Chekhov/* WebContent/Corpora/Chekhov/
+cp -R $OOP_HOME/Sample/Corpora/Gutenberg/Chekhov/* WebContent/Corpora/Chekhov/
 mkdir WebContent/Corpora/Maupassant
-cp -R $OOP_HOME/Corpora_IT/Gutenberg/Maupassant/* WebContent/Corpora/Maupassant/
+cp -R $OOP_HOME/Sample/Corpora/Gutenberg/Maupassant/* WebContent/Corpora/Maupassant/
 mkdir WebContent/Corpora/Wodehouse
-cp -R $OOP_HOME/Corpora_IT/Ebook/Wodehouse/* WebContent/Corpora/Wodehouse/
+cp -R $OOP_HOME/Sample/Corpora/EBook/Wodehouse/* WebContent/Corpora/Wodehouse/
 mkdir WebContent/Corpora/OHenry
-cp -R $OOP_HOME/Corpora_IT/Wikisource/OHenry/* WebContent/Corpora/OHenry/
+cp -R $OOP_HOME/Sample/Corpora/Wikisource/OHenry/* WebContent/Corpora/OHenry/
 
 #build oopcorenlp
 cd $OOP_HOME

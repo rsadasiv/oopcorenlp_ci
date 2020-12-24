@@ -3,7 +3,6 @@ sudo yum install git -y
 git config --global credential.helper 'cache --timeout=3600'
 sudo yum install java-11-amazon-corretto -y
 JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64
-$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA
 sudo yum install wget -y
 sudo yum install tar -y
 

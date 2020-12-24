@@ -3,6 +3,7 @@ sudo yum install git -y
 git config --global credential.helper 'cache --timeout=3600'
 sudo yum install java-11-amazon-corretto -y
 JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64
+$JAVA_HOME/bin/keytool -genkey -alias tomcat -keyalg RSA
 sudo yum install wget -y
 sudo yum install tar -y
 
@@ -72,6 +73,8 @@ java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cl
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/MaupassantBatch.json
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/WodehouseBatch.json
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/OHenryBatch.json
+java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action aggregate --inputBatchPath ./Sample/Corpora/Gutenberg/Chekhov/ChekhovBatch.json --inputBatchPath ./Sample/Corpora/Gutenberg/Maupassant/MaupassantBatch.json --inputBatchPath ./Sample/Corpora/EBook/Wodehouse/WodehouseBatch.json --inputBatchPath ./Sample/Corpora/Wikisource/OHenry/OHenryBatch.json
+
 
 #deploy Analyze output to tomcat
 cd $OOP_HOME
@@ -92,6 +95,8 @@ mkdir WebContent/Corpora/Wodehouse
 cp -R $OOP_HOME/Sample/Corpora/EBook/Wodehouse/* WebContent/Corpora/Wodehouse/
 mkdir WebContent/Corpora/OHenry
 cp -R $OOP_HOME/Sample/Corpora/Wikisource/OHenry/* WebContent/Corpora/OHenry/
+mkdir WebContent/Corpora/All
+cp -R $OOP_HOME/Sample/Corpora/All/All/* WebContent/Corpora/All/
 
 #build oopcorenlp
 cd $OOP_HOME

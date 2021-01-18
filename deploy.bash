@@ -1,0 +1,1 @@
+aws cloudformation create-stack --stack-name buildServer --template-body file://Ec2BuildServer.json --parameters file://data/Ec2BuildServerParameters.json

@@ -7,12 +7,15 @@ sudo yum install wget -y
 sudo yum install tar -y
 
 MAVEN_VERSION=3.6.3
-TOMCAT_VERSION=9.0.41
+TOMCAT_VERSION=9.0.36
 CLI_VERSION=1.0
 OOP_HOME=$PWD/..
+MAVEN_SUREFIRE_OPTS="-Xmx12g"
+export JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto.x86_64
+PATH=$PATH:~/apache-maven-$MAVEN_VERSION/bin
 set -e
 
-#install maven from download
+echo "install maven from download"
 cd $OOP_HOME
 if [ ! -d apache-maven-$MAVEN_VERSION ] 
 then
@@ -21,7 +24,7 @@ then
 fi
 PATH=$PATH:~/apache-maven-$MAVEN_VERSION/bin
 
-#configure maven with tomcat deployer password
+echo "configure maven with tomcat deployer password"
 cd $OOP_HOME
 if [ ! -d .m2 ]
 then
@@ -29,41 +32,64 @@ then
 fi
 cp $OOP_HOME/oopcorenlp_ci/settings.xml $OOP_HOME/.m2/settings.xml
 
-#install tomcat 9 from download
+echo "install tomcat 9 from download"
 cd $OOP_HOME
 if [ ! -d apache-tomcat-$TOMCAT_VERSION ] 
 then
 	wget https://downloads.apache.org/tomcat/tomcat-9/v$TOMCAT_VERSION/bin/apache-tomcat-$TOMCAT_VERSION.tar.gz
 	tar xvfz apache-tomcat-$TOMCAT_VERSION.tar.gz
 fi
-#configure tomcat with deployer password
+
+echo "configure tomcat with deployer password"
 cd $OOP_HOME
 cp $OOP_HOME/oopcorenlp_ci/tomcat-users.xml apache-tomcat-$TOMCAT_VERSION/conf/tomcat-users.xml
 
 cd $OOP_HOME/oopcorenlp_ci
 ./build.bash
 
-#run cli
+echo "run oopcorenlp_cli"
 cd $OOP_HOME
 java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action generate
 java -Xms8096m -Xmx10120m -jar oopcorenlp_cli/target/oopcorenlp_cli-$CLI_VERSION.jar --action analyze --outputPath ./AnalyzeIT
 
 
-#run corpus cli
+echo "run oopcorenlp_corpus_cli"
 cd $OOP_HOME
+#ensure directory structure exists and is empty
 if [ ! -d Sample ]
 then
 	mkdir Sample
-	cd Sample
-	mkdir Chekhov
-	mkdir Maupassant
-	mkdir Wodehouse
-	mkdir OHenry
+fi
+cd Sample
+if [ ! -d Corpora ]
+then
+	mkdir Corpora
+fi
+cd Corpora
+if [ ! -d Gutenberg ]
+then
+	mkdir Gutenberg
 else
-	rm -Rf ./Sample/Chekhov/*
-	rm -Rf ./Sample/Maupassant/*
-	rm -Rf ./Sample/Wodehouse/*
-	rm -Rf ./Sample/OHenry/*
+	cd Gutenberg
+	rm -Rf ./Gutenberg/*
+fi
+if [ ! -d EBook ]
+then
+	mkdir EBook
+else
+	rm -Rf ./EBook/*
+fi
+if [ ! -d Wikisource ]
+then
+	mkdir Wikisource
+else
+	rm -Rf ./Wikisource/*
+fi
+if [ ! -d All ]
+then
+	mkdir All
+else
+	rm -Rf ./All/*
 fi
 
 cd $OOP_HOME
@@ -72,13 +98,14 @@ java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cl
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/MaupassantBatch.json
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/WodehouseBatch.json
 java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action analyze --inputPath ./Sample/OHenryBatch.json
-java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action aggregate --inputBatchPath ./Sample/Corpora/Gutenberg/Chekhov/ChekhovBatch.json --inputBatchPath ./Sample/Corpora/Gutenberg/Maupassant/MaupassantBatch.json --inputBatchPath ./Sample/Corpora/EBook/Wodehouse/WodehouseBatch.json --inputBatchPath ./Sample/Corpora/Wikisource/OHenry/OHenryBatch.json
+java -Xms8096m -Xmx10120m -jar oopcorenlp_corpus_cli/target/oopcorenlp_corpus_cli-$CLI_VERSION.jar --action aggregate --outputPath ./Sample --inputBatch ./Sample/Corpora/Gutenberg/Chekhov/ChekhovBatch.json --inputBatch ./Sample/Corpora/Gutenberg/Maupassant/MaupassantBatch.json --inputBatch ./Sample/Corpora/EBook/Wodehouse/WodehouseBatch.json --inputBatch ./Sample/Corpora/Wikisource/OHenry/OHenryBatch.json
 
 
-#deploy Analyze output to tomcat
+echo "copy oopcorenlp_corpus_cli output to oopcorenlp_web"
 cd $OOP_HOME
 cd oopcorenlp_web
 
+#ensure directory structure exists and is empty
 if [ ! -d WebContent/Corpora ]
 then
         mkdir WebContent/Corpora
@@ -97,19 +124,19 @@ cp -R $OOP_HOME/Sample/Corpora/Wikisource/OHenry/* WebContent/Corpora/OHenry/
 mkdir WebContent/Corpora/All
 cp -R $OOP_HOME/Sample/Corpora/All/All/* WebContent/Corpora/All/
 
-#build oopcorenlp
+echo "build oopcorenlp_web"
 cd $OOP_HOME
 cd oopcorenlp_web
 mvn -DSkipITs package
 
-#start tomcat
+echo "start tomcat"
 cd $OOP_HOME
 apache-tomcat-$TOMCAT_VERSION/bin/startup.sh
 
-#deploy oopcorenlp_web
+echo "deploy oopcorenlp_web to tomcat"
 cd oopcorenlp_web
 mvn tomcat7:deploy
 
-#stop tomcat
+echo "stop tomcat"
 cd $OOP_HOME
 apache-tomcat-$TOMCAT_VERSION/bin/shutdown.sh

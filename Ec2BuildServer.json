@@ -1,0 +1,104 @@
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "Create a build server",
+	"Parameters": {
+		"ImageId": {
+			"Type": "AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>",
+			"Default": "/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2"
+		},
+		"KeyName": {
+			"Type": "String"
+		},
+		"IamInstanceProfile": {
+			"Type" : "String"
+		},
+		"SecurityGroupIds": {
+      		"Type": "List<AWS::EC2::SecurityGroup::Id>"
+    	},
+    	"SubnetId": {
+    		"Type": "String"
+    	}
+  
+	},
+	"Resources": {
+		"EC2Instance": {
+			"Type": "AWS::EC2::Instance",
+			"Properties": {
+				"IamInstanceProfile": {
+					"Ref": "IamInstanceProfile"
+				},
+				"InstanceType": "r5.large",
+				"SecurityGroupIds": {
+					"Ref": "SecurityGroupIds"
+				},
+				"KeyName": {
+					"Ref": "KeyName"
+				},
+				"ImageId": {
+					"Ref": "ImageId"
+				},
+				"BlockDeviceMappings": [
+					{
+						"DeviceName": "/dev/sdm",
+						"Ebs": {
+							"VolumeType": "io1",
+							"Iops": "200",
+							"DeleteOnTermination": "false",
+							"VolumeSize": "50"
+						}
+					},
+					{
+						"DeviceName": "/dev/sdk",
+						"NoDevice": {
+						}
+					}
+				],
+				"SubnetId": {
+					"Ref" : "SubnetId"
+				},
+				"Tags": [
+					{
+						"Key" : "Name",
+						"Value" : "BuildServer"
+					}
+				]
+				
+			}
+		}
+	},
+	"Outputs": {
+		"InstanceId": {
+			"Description": "InstanceId of the newly created EC2 instance",
+			"Value": {
+				"Ref": "EC2Instance"
+			}
+		},
+		"AZ": {
+			"Description": "Availability Zone of the newly created EC2 instance",
+			"Value": {
+				"Fn::GetAtt": [
+					"EC2Instance",
+					"AvailabilityZone"
+				]
+			}
+		},
+		"PrivateDNS": {
+			"Description": "Private DNSName of the newly created EC2 instance",
+			"Value": {
+				"Fn::GetAtt": [
+					"EC2Instance",
+					"PrivateDnsName"
+				]
+			}
+		},
+		"PrivateIP": {
+			"Description": "Private IP address of the newly created EC2 instance",
+			"Value": {
+				"Fn::GetAtt": [
+					"EC2Instance",
+					"PrivateIp"
+				]
+			}
+		}
+	}
+}

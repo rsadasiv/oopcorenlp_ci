@@ -9,4 +9,5 @@ data/
 TODO.txt
 *.log
 *.war
+*.jar
 buildDocker.bash
